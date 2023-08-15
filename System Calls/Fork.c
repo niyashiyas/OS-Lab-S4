@@ -5,7 +5,6 @@
 #include <stdlib.h>
  
 #include <sys/types.h>
-#include <sys/wait.h>
  
 void main() {
     pid_t pid=0;
