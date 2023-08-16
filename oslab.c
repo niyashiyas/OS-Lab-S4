@@ -1,93 +1,68 @@
 #include <stdio.h>
+
 typedef struct{
-    int pid;
-    int atime;
-    int btime;
-    int ctime;
-    int rtime;
-    int wtime;
-    int tatime;
-}process;
-
+    int at,bt,ct,wt,rt,tat,pid;
+} process;
+int tt;
 int ganttProcess[] = {};
-int ganttTime[] = {};
-int tt ;
 
-int findShortest(process p[], int n, int t){
-    int shortIndex = -1;
-    int shortBtime = 999;
-    for(int i=0; i<n; i++){
-        if(p[i].atime<=t && p[i].rtime >0 && p[i].rtime<shortBtime){
-                printf("P%d rt-%d st-%d\n",p[i].pid, p[i].rtime, shortBtime);
-            
-                shortIndex = i;
-                shortBtime = p[i].rtime;
-            
+int findshortest(process p[], int n, int t){
+    int srtIndex=-1;
+    int srtbtime=999;
+    for(int i=0;i<n;i++){
+        if(p[i].at<=t && p[i].rt>0 && p[i].rt<srtbtime){
+            srtbtime = p[i].rt;
+            srtIndex = i;
         }
     }
-    return shortIndex;
+    return srtIndex;
 }
 
 void srtf(process p[], int n){
-    int t = 0;
-    int completed = 0;
-    //to find shortest job at any point of time
-    while(completed<n){
-        int shortest = findShortest(p, n, t);
-        if(shortest == -1){
+    int t=0;
+    int completed =0;
+    while (completed<n){
+        int srt = findshortest(p, n, t);
+        if(srt==-1){
             t++;
             continue;
         }
-         
-        process *job = &p[shortest];
-        job->rtime= (job->rtime-1);
-        ganttProcess[t]=job->pid;
-        // ganttProcess[t]=t++;
+        process *job = &p[srt];
+        job->rt--;
+        ganttProcess[t] = job->pid;
         t++;
-        if(job->rtime==0){
-            job->ctime= t;
-            job->tatime = job->ctime-job->atime;
-            job->wtime=job->tatime-job->btime;
+        if(job->rt==0){
+            job->ct=t+job->rt;
+            job->tat=job->ct-job->at;
+            job->wt=job->tat-job->bt;
             completed++;
         }
     }
-    tt = t;
+    tt=t;
 }
 
 void main(){
- int n;
- process p[10];
- printf("Enter the number of processes: ");
- scanf("%d", &n);
- for(int i=0;i<n;i++){
-    p[i].pid=(i+1);
-    printf("Enter value of arrive time and burst time of process %d: ", (i+1));
-    scanf("%d %d", &p[i].atime, &p[i].btime);
-    p[i].rtime=p[i].btime;
- }
- srtf(p,n);
- float avg_wt = 0, avg_tat = 0;
- printf("PID\tBurst\tArrival\tCompletion\tTurnaround\tWait\n");
-    for (int i = 0; i < n; i++) {
-        printf("%d\t%d\t%d\t%d\t\t%d\t\t%d\n", p[i].pid, p[i].btime, p[i].atime, p[i].ctime, p[i].tatime, p[i].wtime);
-        avg_wt += p[i].wtime;
-        avg_tat += p[i].tatime;
+    int n;
+    printf("enter no of processes: ");
+    scanf("%d", &n);
+    process p[n];
+    for(int i=0;i<n;i++){
+        printf("enter atime and btme of process %d: ", i+1);
+        scanf("%d %d", &p[i].at, &p[i].bt);
+        p[i].pid=i+1;
+        p[i].rt=p[i].bt;
     }
-
-    avg_wt /= n;
-    avg_tat /= n;
-
-    printf("Average Waiting Time: %.2f\n", avg_wt);
-    printf("Average Turnaround Time: %.2f\n", avg_tat);
-
-    printf("\n\tGantt Chart");
-    printf("\n--------------------------------------------------------------------------------------------------\n");
+    srtf(p, n);
+    printf("Process\tatime\tbtime\tctime\ttatime\twtime");
+    for(int i=0; i<n; i++){
+        printf("\nP%d\t%d\t%d\t%d\t%d", p[i].pid, p[i].at, p[i].bt, p[i].ct, p[i].tat, p[i].wt);
+    }
+    printf("\nGantt Chart\n-------------------------------------------------------------------------------------------------------------------\n");
     for(int i=0; i<tt; i++){
-        printf("|\tP%d\t", ganttProcess[i]);
+        printf("| P%d ", ganttProcess[i]);
     }
-    printf("\n--------------------------------------------------------------------------------------------------\n");
-    printf("0\t");
-    for(int i=1; i<=tt; i++){
-        printf("\t%d\t", i);
+    printf("\n---------------------------------------------------------------------------------------------------------------\n");
+    for(int i=0; i<tt;i++){
+        printf("%d    ", i);
     }
 }
